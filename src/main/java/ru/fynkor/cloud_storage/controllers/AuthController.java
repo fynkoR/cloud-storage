@@ -13,6 +13,6 @@ import ru.fynkor.cloud_storage.dto.UserDto;
 public class AuthController {
     @PostMapping("/sign-up")
     public UserDto registration(@Valid @RequestBody CreateUserDto createUserDto){
-
+        // TODO: использовать метод из сервиса для регистрации
     }
 }
