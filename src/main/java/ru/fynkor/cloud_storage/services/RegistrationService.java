@@ -12,7 +12,6 @@ public class RegistrationService {
 
     private final UserRepository userRepository;
 
-    @Autowired
     public RegistrationService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }

@@ -39,6 +39,17 @@ public class GlobalHandlerException {
                 .body(errorResponse);
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserYetExistsException(UserNotFoundException exception){
+        String errorMessage = exception.getMessage();
+
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage);
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ErrorResponse> handleDataAccessException(DataAccessException exception){
         String errorMessage = exception.getMessage();

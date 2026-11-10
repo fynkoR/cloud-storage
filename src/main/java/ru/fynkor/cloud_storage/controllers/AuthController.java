@@ -11,6 +11,7 @@ import ru.fynkor.cloud_storage.dto.UserDto;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
     @PostMapping("/sign-up")
     public UserDto registration(@Valid @RequestBody CreateUserDto createUserDto){
         // TODO: использовать метод из сервиса для регистрации
