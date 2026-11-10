@@ -23,12 +23,15 @@ public class RegistrationService {
     @Transactional
     public String registration(CreateUserDto createUserDto){
         String username = createUserDto.username();
+
         if(userRepository.existsUserByUsername(username)){
             throw new UserYetExistsException(username);
         }
+
         String encodedPassword = passwordEncoder.encode(createUserDto.password());
         User user = new User(username, encodedPassword);
-
         userRepository.save(user);
+
+        return username;
     }
 }
