@@ -44,4 +44,6 @@ public class AuthController {
                 .status(HttpStatus.OK)
                 .body(new UserResponseDto(username));
     }
+
+    //TODO: необходимо реализовать logout
 }
