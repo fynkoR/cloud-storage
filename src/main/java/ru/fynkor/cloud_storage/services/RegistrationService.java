@@ -21,7 +21,7 @@ public class RegistrationService {
     // TODO: необходимо реализовать метод регистрации пользователя
     @Transactional
     public String registration(CreateUserDto createUserDto){
-        // TODO: добавить проверку на валидацию , проверку на дубляж и неизвестная ошибка , добавить сам Spring Security
+        // TODO: добавить сам Spring Security
         String username = createUserDto.username();
         if(userRepository.existsUserByUsername(username)){
             throw new UserYetExistsException(username);

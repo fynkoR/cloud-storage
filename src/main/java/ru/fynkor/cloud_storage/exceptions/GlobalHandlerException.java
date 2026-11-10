@@ -1,5 +1,6 @@
 package ru.fynkor.cloud_storage.exceptions;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -37,5 +38,29 @@ public class GlobalHandlerException {
                 .status(HttpStatus.CONFLICT)
                 .body(errorResponse);
     }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<ErrorResponse> handleDataAccessException(DataAccessException exception){
+        String errorMessage = exception.getMessage();
+
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage);
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(Exception exception){
+        String errorMessage = exception.getMessage();
+
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage);
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorResponse);
+    }
+
+
 
 }
