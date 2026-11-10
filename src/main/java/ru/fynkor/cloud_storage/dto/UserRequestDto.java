@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public record CreateUserDto(
+public record UserRequestDto(
         @NotBlank(message = "Username should be not empty")
         @Size(min = 3, max = 20, message = "Username should be between 3 and 20 characters")
         @Pattern(

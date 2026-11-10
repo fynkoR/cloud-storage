@@ -1,10 +1,9 @@
 package ru.fynkor.cloud_storage.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.fynkor.cloud_storage.dto.CreateUserDto;
+import ru.fynkor.cloud_storage.dto.UserRequestDto;
 import ru.fynkor.cloud_storage.entities.User;
 import ru.fynkor.cloud_storage.exceptions.UserYetExistsException;
 import ru.fynkor.cloud_storage.repositories.UserRepository;
@@ -21,14 +20,14 @@ public class RegistrationService {
     }
 
     @Transactional
-    public String registration(CreateUserDto createUserDto){
-        String username = createUserDto.username();
+    public String registration(UserRequestDto userRequestDto){
+        String username = userRequestDto.username();
 
         if(userRepository.existsUserByUsername(username)){
             throw new UserYetExistsException(username);
         }
 
-        String encodedPassword = passwordEncoder.encode(createUserDto.password());
+        String encodedPassword = passwordEncoder.encode(userRequestDto.password());
         User user = new User(username, encodedPassword);
         userRepository.save(user);
 
