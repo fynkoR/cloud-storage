@@ -2,6 +2,7 @@ package ru.fynkor.cloud_storage.controllers;
 
 import jakarta.validation.Valid;
 import org.apache.coyote.Response;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,9 +25,9 @@ public class AuthController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<UserDto> registration(@Valid @RequestBody CreateUserDto createUserDto){
-        // TODO: использовать метод из сервиса для регистрации
         String username = registrationService.registration(createUserDto);
-
-        return ResponseEntity.ok(new UserDto(username));
+        return ResponseEntity.
+                status(HttpStatus.CREATED)
+                .body(new UserDto(username));
     }
 }
