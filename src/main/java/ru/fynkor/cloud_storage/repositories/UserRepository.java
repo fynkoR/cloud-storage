@@ -6,4 +6,5 @@ import ru.fynkor.cloud_storage.entities.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer>{
+    boolean existsUserByUsername(String username);
 }
