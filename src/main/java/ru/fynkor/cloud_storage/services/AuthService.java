@@ -23,8 +23,8 @@ public class AuthService {
                 );
 
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getDetails();
         return userDetails.getUsername();
     }
 }

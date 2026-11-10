@@ -24,9 +24,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http){
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/auth/sign-up", "/error"))
+                        .disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/sign-up").permitAll()
+                        .requestMatchers("/api/auth/sign-up", "/api/auth/sign-in", "/error").permitAll()
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(customUserDetailsService);

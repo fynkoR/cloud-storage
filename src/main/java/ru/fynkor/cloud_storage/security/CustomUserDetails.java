@@ -1,5 +1,6 @@
 package ru.fynkor.cloud_storage.security;
 
+import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,6 +12,7 @@ import java.util.List;
 
 // TODO: как будет ясно работа с ролями , дополнить getAuthorities() - мб добавить новое поле role in User
 
+@Getter
 public class CustomUserDetails implements UserDetails {
 
     private final User user;
@@ -31,7 +33,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.user.getPassword();
+        return this.user.getUsername();
     }
 
     @Override
@@ -54,7 +56,4 @@ public class CustomUserDetails implements UserDetails {
         return true;
     }
 
-    public User getUser(){
-        return this.user;
-    }
 }

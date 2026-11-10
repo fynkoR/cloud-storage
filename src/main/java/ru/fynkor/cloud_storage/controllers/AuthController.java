@@ -36,6 +36,7 @@ public class AuthController {
                 .status(HttpStatus.CREATED)
                 .body(new UserResponseDto(username));
     }
+
     @PostMapping("/sign-in")
     public ResponseEntity<UserResponseDto> authentication(@Valid @RequestBody UserRequestDto userRequestDto){
         String username = authService.performAuthentication(userRequestDto);
