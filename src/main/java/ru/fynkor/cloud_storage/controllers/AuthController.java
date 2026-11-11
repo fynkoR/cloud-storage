@@ -1,12 +1,17 @@
 package ru.fynkor.cloud_storage.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.apache.coyote.Response;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,10 +27,12 @@ public class AuthController {
 
     private final RegistrationService registrationService;
     private final AuthService authService;
+    private final SecurityContextLogoutHandler securityContextLogoutHandler;
 
-    public AuthController(RegistrationService registrationService, AuthService authService) {
+    public AuthController(RegistrationService registrationService, AuthService authService, SecurityContextLogoutHandler securityContextLogoutHandler) {
         this.registrationService = registrationService;
         this.authService = authService;
+        this.securityContextLogoutHandler = securityContextLogoutHandler;
     }
 
 
@@ -45,5 +52,13 @@ public class AuthController {
                 .body(new UserResponseDto(username));
     }
 
-    //TODO: необходимо реализовать logout
+    @PostMapping("/sign-out")
+    public ResponseEntity<Void> logout(
+            HttpServletRequest request,
+                       HttpServletResponse response,
+                       Authentication authentication
+    ){
+        securityContextLogoutHandler.logout(request, response, authentication);
+        return ResponseEntity.noContent().build();
+    }
 }

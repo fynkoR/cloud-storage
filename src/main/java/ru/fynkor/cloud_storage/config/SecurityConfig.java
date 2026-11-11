@@ -1,5 +1,6 @@
 package ru.fynkor.cloud_storage.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -11,10 +12,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import ru.fynkor.cloud_storage.services.CustomUserDetailsService;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -34,6 +38,7 @@ public class SecurityConfig {
                         .disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/sign-up", "/api/auth/sign-in", "/error").permitAll()
+                        .requestMatchers("/api/auth/sign-out").authenticated()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
@@ -52,5 +57,10 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration){
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityContextLogoutHandler securityContextLogoutHandler(){
+        return new SecurityContextLogoutHandler();
     }
 }
