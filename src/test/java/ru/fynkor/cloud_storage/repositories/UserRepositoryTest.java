@@ -90,6 +90,5 @@ public class UserRepositoryTest {
         userRepository.save(user_1);
         assertThatThrownBy(() -> userRepository.save(user_2));
     }
-
     
 }

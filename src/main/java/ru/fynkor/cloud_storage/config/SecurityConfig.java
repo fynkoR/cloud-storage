@@ -11,11 +11,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import ru.fynkor.cloud_storage.security.DelegatedAuthenticationEntryPoint;
 import ru.fynkor.cloud_storage.services.CustomUserDetailsService;
 
 @Slf4j
@@ -23,9 +26,11 @@ import ru.fynkor.cloud_storage.services.CustomUserDetailsService;
 @EnableWebSecurity
 public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
+    private final DelegatedAuthenticationEntryPoint delegatedAuthenticationEntryPoint;
 
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService, DelegatedAuthenticationEntryPoint delegatedAuthenticationEntryPoint) {
         this.customUserDetailsService = customUserDetailsService;
+        this.delegatedAuthenticationEntryPoint = delegatedAuthenticationEntryPoint;
     }
 
     @Bean
@@ -42,7 +47,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                        .authenticationEntryPoint(delegatedAuthenticationEntryPoint)
                 )
                 .userDetailsService(customUserDetailsService);
 
