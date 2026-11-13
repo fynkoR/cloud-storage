@@ -3,6 +3,7 @@ package ru.fynkor.cloud_storage.repositories;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -88,7 +89,8 @@ public class UserRepositoryTest {
         User user_2 = new User(username, "password_2");
 
         userRepository.save(user_1);
-        assertThatThrownBy(() -> userRepository.save(user_2));
+        assertThatThrownBy(() -> userRepository.saveAndFlush(user_2))
+                .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
