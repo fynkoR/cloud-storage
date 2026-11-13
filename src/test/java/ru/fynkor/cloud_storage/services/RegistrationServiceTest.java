@@ -43,4 +43,11 @@ public class RegistrationServiceTest extends AbstractIntegrationTest {
             registrationService.registration(user2);
         }).isInstanceOf(UserYetExistsException.class);
     }
+
+    @Test
+    public void shouldBeFailTestIfDtoIsNull(){
+        assertThatThrownBy(() -> {
+            registrationService.registration(null);
+        }).isInstanceOf(NullPointerException.class);
+    }
 }
