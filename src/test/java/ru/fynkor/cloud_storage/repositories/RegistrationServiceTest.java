@@ -16,9 +16,10 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import ru.fynkor.cloud_storage.dto.UserRequestDto;
+import ru.fynkor.cloud_storage.exceptions.UserYetExistsException;
 import ru.fynkor.cloud_storage.services.RegistrationService;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Testcontainers
@@ -39,14 +40,24 @@ public class RegistrationServiceTest {
     @Autowired
     private RegistrationService registrationService;
 
-    @Autowired
-    private Validator validator;
-
     @Test
-    public void registrationWithCorrectUser(){
+    public void registrationCorrectUser(){
         UserRequestDto userRequestDto = new UserRequestDto("username", "password");
         String username = registrationService.registration(userRequestDto);
         assertThat(username).isEqualTo(userRequestDto.username());
     }
 
+    @Test
+    public void registrationExistsUser(){
+        String username = "username";
+        UserRequestDto user1 = new UserRequestDto(username, "password");
+        UserRequestDto user2 = new UserRequestDto(username, "password");
+
+        registrationService.registration(user1);
+
+        assertThat(user1.username()).isEqualTo(user2.username());
+        assertThatThrownBy(() -> {
+            registrationService.registration(user2);
+        }).isInstanceOf(UserYetExistsException.class);
+    }
 }

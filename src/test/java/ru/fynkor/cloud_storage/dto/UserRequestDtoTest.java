@@ -4,15 +4,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.validation.autoconfigure.ValidationAutoConfiguration;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest(classes = ValidationAutoConfiguration.class)
-public class UseRequestDtoTest {
+public class UserRequestDtoTest {
 
     @Autowired
     private Validator validator;
@@ -25,6 +25,17 @@ public class UseRequestDtoTest {
 
         assertThat(errors.hasErrors()).isTrue();
         assertThat(errors.getFieldError(checkField)).isNotNull();
+        assertThatExceptionOfType(MethodArgumentNotValidException.class);
+    }
+    @Test
+    public void shouldFailValidationForUserIfAllFieldsNull(){
+        UserRequestDto userRequestDto = new UserRequestDto(null, null);
+        Errors errors = new BeanPropertyBindingResult(userRequestDto, "userRequestDto");
+
+        validator.validate(userRequestDto, errors);
+
+        assertThat(errors.hasErrors()).isTrue();
+        assertThatExceptionOfType(MethodArgumentNotValidException.class);
     }
     @Test
     public void shouldFailValidationForUserIfUsernameIsNull(){
