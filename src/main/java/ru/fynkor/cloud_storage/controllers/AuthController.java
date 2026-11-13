@@ -27,12 +27,10 @@ public class AuthController {
 
     private final RegistrationService registrationService;
     private final AuthService authService;
-    private final SecurityContextLogoutHandler securityContextLogoutHandler;
 
-    public AuthController(RegistrationService registrationService, AuthService authService, SecurityContextLogoutHandler securityContextLogoutHandler) {
+    public AuthController(RegistrationService registrationService, AuthService authService) {
         this.registrationService = registrationService;
         this.authService = authService;
-        this.securityContextLogoutHandler = securityContextLogoutHandler;
     }
 
 
@@ -55,10 +53,10 @@ public class AuthController {
     @PostMapping("/sign-out")
     public ResponseEntity<Void> logout(
             HttpServletRequest request,
-                       HttpServletResponse response,
-                       Authentication authentication
+            HttpServletResponse response,
+            Authentication authentication
     ){
-        securityContextLogoutHandler.logout(request, response, authentication);
+        authService.performLogout(request,response,authentication);
         return ResponseEntity.noContent().build();
     }
 }
