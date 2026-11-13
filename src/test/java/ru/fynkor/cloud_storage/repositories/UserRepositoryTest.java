@@ -90,5 +90,10 @@ public class UserRepositoryTest {
         userRepository.save(user_1);
         assertThatThrownBy(() -> userRepository.save(user_2));
     }
-    
+
+    @Test
+    public void testIfUserNotFoundByUsername(){
+        Optional<User> user = userRepository.findUserByUsername("Bob Marley");
+        assertThat(user.isEmpty());
+    }
 }
