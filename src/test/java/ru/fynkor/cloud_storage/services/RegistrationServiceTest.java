@@ -7,7 +7,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 import ru.fynkor.cloud_storage.CloudStorageApplicationTests;
 import ru.fynkor.cloud_storage.dto.UserRequestDto;
+import ru.fynkor.cloud_storage.entities.User;
 import ru.fynkor.cloud_storage.exceptions.UserYetExistsException;
+import ru.fynkor.cloud_storage.repositories.UserRepository;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -18,11 +22,18 @@ public class RegistrationServiceTest extends CloudStorageApplicationTests {
     @Autowired
     private RegistrationService registrationService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Test
     public void registrationCorrectUser(){
         UserRequestDto userRequestDto = new UserRequestDto("username", "password");
         String username = registrationService.registration(userRequestDto);
+
+        boolean existsUserInDatabase = userRepository.existsUserByUsername(username);
+
         assertThat(username).isEqualTo(userRequestDto.username());
+        assertThat(existsUserInDatabase).isTrue();
     }
 
     @Test
