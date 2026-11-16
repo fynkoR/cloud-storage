@@ -35,7 +35,6 @@ public class AuthController {
         this.securityContextLogoutHandler = securityContextLogoutHandler;
     }
 
-
     @PostMapping("/sign-up")
     public ResponseEntity<UserResponseDto> registration(@Valid @RequestBody UserRequestDto userRequestDto){
         String username = registrationService.registration(userRequestDto);
