@@ -6,12 +6,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
-import ru.fynkor.cloud_storage.AbstractIntegrationTest;
+import ru.fynkor.cloud_storage.CloudStorageApplication;
+import ru.fynkor.cloud_storage.CloudStorageApplicationTests;
 import ru.fynkor.cloud_storage.dto.UserRequestDto;
-import ru.fynkor.cloud_storage.entities.User;
-import ru.fynkor.cloud_storage.repositories.UserRepository;
 import ru.fynkor.cloud_storage.security.CustomUserDetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
-public class AuthServiceTest extends AbstractIntegrationTest {
+public class AuthServiceTest extends CloudStorageApplicationTests {
 
     @Autowired
     private AuthService authService;

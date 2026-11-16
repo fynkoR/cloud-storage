@@ -4,16 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
-import ru.fynkor.cloud_storage.AbstractIntegrationTest;
+import org.springframework.test.annotation.DirtiesContext;
+import ru.fynkor.cloud_storage.CloudStorageApplication;
+import ru.fynkor.cloud_storage.CloudStorageApplicationTests;
 import ru.fynkor.cloud_storage.entities.User;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
-public class UserRepositoryTest extends AbstractIntegrationTest {
+public class UserRepositoryTest extends CloudStorageApplicationTests {
 
     @Autowired
     private UserRepository userRepository;

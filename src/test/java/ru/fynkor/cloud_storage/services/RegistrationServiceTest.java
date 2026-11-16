@@ -3,22 +3,18 @@ package ru.fynkor.cloud_storage.services;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
-import ru.fynkor.cloud_storage.AbstractIntegrationTest;
+import ru.fynkor.cloud_storage.CloudStorageApplicationTests;
 import ru.fynkor.cloud_storage.dto.UserRequestDto;
 import ru.fynkor.cloud_storage.exceptions.UserYetExistsException;
 
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
+
 @Transactional
-public class RegistrationServiceTest extends AbstractIntegrationTest {
+public class RegistrationServiceTest extends CloudStorageApplicationTests {
 
     @Autowired
     private RegistrationService registrationService;
