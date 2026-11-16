@@ -69,15 +69,4 @@ public class AuthServiceTest extends CloudStorageApplicationTests {
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         assertThat(user.username()).isEqualTo(customUserDetails.getUsername());
     }
-
-
-    // TODO: доделать тест для logout
-
-    /*@Test
-    public void testLogout(){
-        UserRequestDto user = new UserRequestDto("username", "password");
-        authService.performAuthentication(user);
-        authService.performLogout(MockHttpServletRequest , null, SecurityContextHolder.getContext().getAuthentication());
-        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
-    }*/
 }

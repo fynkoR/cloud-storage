@@ -14,11 +14,9 @@ import ru.fynkor.cloud_storage.security.CustomUserDetails;
 @Service
 public class AuthService {
     private final AuthenticationManager authenticationManager;
-    private final SecurityContextLogoutHandler securityContextLogoutHandler;
 
-    public AuthService(AuthenticationManager authenticationManager, SecurityContextLogoutHandler securityContextLogoutHandler) {
+    public AuthService(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
-        this.securityContextLogoutHandler = securityContextLogoutHandler;
     }
 
     public String performAuthentication(UserRequestDto userRequestDto){
@@ -33,13 +31,5 @@ public class AuthService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         return userDetails.getUsername();
-    }
-
-    public void performLogout(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Authentication authentication
-    ){
-        securityContextLogoutHandler.logout(request, response, authentication);
     }
 }

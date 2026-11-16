@@ -27,10 +27,12 @@ public class AuthController {
 
     private final RegistrationService registrationService;
     private final AuthService authService;
+    private final SecurityContextLogoutHandler securityContextLogoutHandler;
 
-    public AuthController(RegistrationService registrationService, AuthService authService) {
+    public AuthController(RegistrationService registrationService, AuthService authService, SecurityContextLogoutHandler securityContextLogoutHandler) {
         this.registrationService = registrationService;
         this.authService = authService;
+        this.securityContextLogoutHandler = securityContextLogoutHandler;
     }
 
 
@@ -56,7 +58,7 @@ public class AuthController {
             HttpServletResponse response,
             Authentication authentication
     ){
-        authService.performLogout(request,response,authentication);
+        securityContextLogoutHandler.logout(request,response,authentication);
         return ResponseEntity.noContent().build();
     }
 }
