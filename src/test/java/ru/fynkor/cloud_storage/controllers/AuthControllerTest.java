@@ -11,11 +11,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.fynkor.cloud_storage.dto.UserRequestDto;
+import ru.fynkor.cloud_storage.entities.User;
+import ru.fynkor.cloud_storage.repositories.UserRepository;
 import ru.fynkor.cloud_storage.services.AuthService;
 import ru.fynkor.cloud_storage.services.RegistrationService;
 import tools.jackson.databind.ObjectMapper;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
@@ -40,8 +45,11 @@ public class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Test
-    public void testRegistrationCorrectUser() throws Exception {
+    public void registrationCorrectUser() throws Exception {
         UserRequestDto userRequestDto = new UserRequestDto(
                 "username",
                 "password"
@@ -123,6 +131,4 @@ public class AuthControllerTest {
 
         verify(registrationService, never()).registration(userRequestDto);
     }
-
-
 }
