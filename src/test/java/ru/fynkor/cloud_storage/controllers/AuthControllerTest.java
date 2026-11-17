@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import ru.fynkor.cloud_storage.CloudStorageApplicationTests;
 import ru.fynkor.cloud_storage.dto.UserRequestDto;
 import ru.fynkor.cloud_storage.entities.User;
 import ru.fynkor.cloud_storage.repositories.UserRepository;
@@ -31,7 +32,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class AuthControllerTest {
+public class AuthControllerTest extends CloudStorageApplicationTests {
+
+    private static final String AUTH_URI = "/api/auth/sign-in";
+    private static final String REGISTRATION_URI = "/api/auth/sign-up";
 
     @Autowired
     private MockMvc mockMvc;
@@ -45,11 +49,8 @@ public class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private UserRepository userRepository;
-
     @Test
-    public void registrationCorrectUser() throws Exception {
+    public void registrationWithCorrectUser() throws Exception {
         UserRequestDto userRequestDto = new UserRequestDto(
                 "username",
                 "password"
@@ -57,7 +58,7 @@ public class AuthControllerTest {
         Mockito.when(registrationService.registration(userRequestDto)).thenReturn(userRequestDto.username());
 
         mockMvc.perform(
-                post("/api/auth/sign-up")
+                post(REGISTRATION_URI)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequestDto))
                 )
@@ -66,69 +67,93 @@ public class AuthControllerTest {
     }
     @Test
     public void registrationWithUserAllNull() throws Exception {
-        UserRequestDto userRequestDto = new UserRequestDto(
-                null,
-                null
-        );
-
-        mockMvc.perform(
-                post("/api/auth/sign-up")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequestDto))
-                )
-                .andExpect(status().is4xxClientError());
+        UserRequestDto userRequestDto = doWithUserParametersWith(null, null, REGISTRATION_URI);
 
         verify(registrationService, never()).registration(userRequestDto);
     }
 
     @Test
     public void registrationWithUserIfUsernameIsNull() throws Exception {
-        UserRequestDto userRequestDto = new UserRequestDto(
-                null,
-                "password"
-        );
-
-        mockMvc.perform(
-                post("/api/auth/sign-up")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequestDto))
-                )
-                .andExpect(status().is4xxClientError());
+        UserRequestDto userRequestDto = doWithUserParametersWith(null, "password", REGISTRATION_URI);
 
         verify(registrationService, never()).registration(userRequestDto);
     }
 
     @Test
     public void registrationWithUserIfPasswordIsNull() throws Exception {
-        UserRequestDto userRequestDto = new UserRequestDto(
-                "username",
-                null
-        );
-
-        mockMvc.perform(
-                        post("/api/auth/sign-up")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(userRequestDto))
-                )
-                .andExpect(status().is4xxClientError());
+        UserRequestDto userRequestDto = doWithUserParametersWith("username", null, REGISTRATION_URI);
 
         verify(registrationService, never()).registration(userRequestDto);
     }
 
     @Test
     public void registrationWithUserIfUsernameNotValid() throws Exception {
+        UserRequestDto userRequestDto = doWithUserParametersWith("12", "password", REGISTRATION_URI);
+
+        verify(registrationService, never()).registration(userRequestDto);
+    }
+
+    @Test
+    public void authCorrectUser() throws Exception {
         UserRequestDto userRequestDto = new UserRequestDto(
-                "12",
+                "username",
                 "password"
         );
 
+        String username = registrationService.registration(userRequestDto);
+
+        Mockito.when(authService.performAuthentication(userRequestDto)).thenReturn(username);
+
         mockMvc.perform(
-                        post("/api/auth/sign-up")
+                post(AUTH_URI)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userRequestDto))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value(username));
+    }
+
+    @Test
+    public void authWithUserAllNull() throws Exception {
+        UserRequestDto userRequestDto = doWithUserParametersWith(null, null, AUTH_URI);
+
+        verify(authService, never()).performAuthentication(userRequestDto);
+    }
+
+    @Test
+    public void authWithUserIfUsernameIsNull() throws Exception {
+        UserRequestDto userRequestDto = doWithUserParametersWith(null, "password", AUTH_URI);
+
+        verify(authService, never()).performAuthentication(userRequestDto);
+    }
+
+    @Test
+    public void authWithUserIfPasswordIsNull() throws Exception {
+        UserRequestDto userRequestDto = doWithUserParametersWith("username", null, AUTH_URI);
+
+        verify(authService, never()).performAuthentication(userRequestDto);
+    }
+
+    @Test
+    public void authWithUserIfUsernameNotValid() throws Exception {
+        UserRequestDto userRequestDto = doWithUserParametersWith("12", "password", AUTH_URI);
+
+        verify(authService, never()).performAuthentication(userRequestDto);
+    }
+
+    public UserRequestDto doWithUserParametersWith(String username, String password, String uri) throws Exception {
+        UserRequestDto userRequestDto = new UserRequestDto(
+                username,
+                password
+        );
+
+        mockMvc.perform(
+                        post(uri)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(userRequestDto))
                 )
                 .andExpect(status().is4xxClientError());
 
-        verify(registrationService, never()).registration(userRequestDto);
+        return userRequestDto;
     }
 }
