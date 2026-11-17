@@ -36,7 +36,7 @@ public class AuthController {
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<UserResponseDto> registration(@Valid @RequestBody UserRequestDto userRequestDto){
+    public ResponseEntity<UserResponseDto> registration(@Valid @RequestBody UserRequestDto userRequestDto) {
         String username = registrationService.registration(userRequestDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -44,7 +44,7 @@ public class AuthController {
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<UserResponseDto> authentication(@Valid @RequestBody UserRequestDto userRequestDto){
+    public ResponseEntity<UserResponseDto> authentication(@Valid @RequestBody UserRequestDto userRequestDto) {
         String username = authService.performAuthentication(userRequestDto);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -56,8 +56,8 @@ public class AuthController {
             HttpServletRequest request,
             HttpServletResponse response,
             Authentication authentication
-    ){
-        securityContextLogoutHandler.logout(request,response,authentication);
+    ) {
+        securityContextLogoutHandler.logout(request, response, authentication);
         return ResponseEntity.noContent().build();
     }
 }

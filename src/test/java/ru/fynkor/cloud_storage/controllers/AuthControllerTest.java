@@ -6,7 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.fynkor.cloud_storage.CloudStorageApplicationTests;
@@ -26,6 +31,7 @@ public class AuthControllerTest extends CloudStorageApplicationTests {
 
     private static final String AUTH_URI = "/api/auth/sign-in";
     private static final String REGISTRATION_URI = "/api/auth/sign-up";
+    private static final String LOGOUT_URI = "/api/auth/sign-out";
 
     @Autowired
     private MockMvc mockMvc;
@@ -225,5 +231,51 @@ public class AuthControllerTest extends CloudStorageApplicationTests {
                         .content(objectMapper.writeValueAsString(userRequestDto))
         )
                 .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithMockUser
+    public void logoutWithUser() throws Exception {
+        mockMvc.perform(
+                post(LOGOUT_URI)
+        )
+                .andExpect(status().is2xxSuccessful());
+    }
+    @Test
+    public void logoutWithoutUser() throws Exception {
+        mockMvc.perform(
+                        post(LOGOUT_URI)
+                )
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void registryAndLogin() throws Exception {
+        UserRequestDto userRequestDto = new UserRequestDto(
+                "username",
+                "password"
+        );
+
+        Mockito.when(registrationService.registration(userRequestDto)).thenReturn(userRequestDto.username());
+
+        mockMvc.perform(
+                post(REGISTRATION_URI)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userRequestDto))
+        )
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.username").value(userRequestDto.username()));
+
+        Mockito.when(authService.performAuthentication(userRequestDto)).thenReturn(userRequestDto.username());
+
+        mockMvc.perform(
+                        post(AUTH_URI)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userRequestDto))
+                )
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.username").value(userRequestDto.username()));
+
+        // TODO: добавить сюда logout
     }
 }
