@@ -1,33 +1,23 @@
 package ru.fynkor.cloud_storage.controllers;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.fynkor.cloud_storage.CloudStorageApplicationTests;
 import ru.fynkor.cloud_storage.dto.UserRequestDto;
-import ru.fynkor.cloud_storage.entities.User;
-import ru.fynkor.cloud_storage.repositories.UserRepository;
+import ru.fynkor.cloud_storage.exceptions.UserYetExistsException;
 import ru.fynkor.cloud_storage.services.AuthService;
 import ru.fynkor.cloud_storage.services.RegistrationService;
 import tools.jackson.databind.ObjectMapper;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -155,5 +145,85 @@ public class AuthControllerTest extends CloudStorageApplicationTests {
                 .andExpect(status().is4xxClientError());
 
         return userRequestDto;
+    }
+
+    @Test
+    public void authUserWithAnotherPassword() throws Exception {
+        String username = "username";
+        String password = "password";
+
+        UserRequestDto userRequestDto = new UserRequestDto(
+                username,
+                password
+        );
+
+        String usernameRegistration = registrationService.registration(userRequestDto);
+
+        String anotherPassword = "password2";
+
+        UserRequestDto userRequestDto2 = new UserRequestDto(
+                usernameRegistration,
+                anotherPassword
+        );
+
+        Mockito.when(authService.performAuthentication(userRequestDto2)).thenThrow(BadCredentialsException.class);
+
+        mockMvc.perform(
+                        post("/api/auth/sign-in")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userRequestDto2))
+                )
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    public void authUserWithAnotherUsername() throws Exception {
+        String username = "username";
+        String password = "password";
+
+        UserRequestDto userRequestDto = new UserRequestDto(
+                username,
+                password
+        );
+
+        registrationService.registration(userRequestDto);
+
+        String anotherUsername = "username2";
+
+        UserRequestDto userRequestDto2 = new UserRequestDto(
+                anotherUsername,
+                password
+        );
+
+        Mockito.when(authService.performAuthentication(userRequestDto2)).thenThrow(BadCredentialsException.class);
+
+        mockMvc.perform(
+                        post("/api/auth/sign-in")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(userRequestDto2))
+                )
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void testDoubleRegistration() throws Exception {
+        String username = "username";
+        String password = "password";
+
+        UserRequestDto userRequestDto = new UserRequestDto(
+                username,
+                password
+        );
+
+        Mockito.when(registrationService.registration(userRequestDto)).thenReturn(userRequestDto.username());
+
+        Mockito.when(registrationService.registration(userRequestDto)).thenThrow(UserYetExistsException.class);
+
+        mockMvc.perform(
+                post(REGISTRATION_URI)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userRequestDto))
+        )
+                .andExpect(status().is4xxClientError());
     }
 }
