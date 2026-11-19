@@ -24,7 +24,6 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import ru.fynkor.cloud_storage.security.DelegatedAuthenticationEntryPoint;
 import ru.fynkor.cloud_storage.services.CustomUserDetailsService;
 
-@Slf4j
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {

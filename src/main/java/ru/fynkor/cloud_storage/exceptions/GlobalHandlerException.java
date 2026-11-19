@@ -100,6 +100,14 @@ public class GlobalHandlerException {
                 .body(errorResponse);
     }
 
+    @ExceptionHandler(UploadException.class)
+    public ResponseEntity<ErrorResponse> handleUploadException(UploadException exception){
+        String errorMessage = exception.getMessage();
 
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage);
 
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
 }

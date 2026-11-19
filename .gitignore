@@ -41,4 +41,8 @@ build/
 ### Mac OS ###
 .DS_Store
 
+### database ###
 database.properties
+
+### .env ###
+.env
