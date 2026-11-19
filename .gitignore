@@ -46,3 +46,6 @@ database.properties
 
 ### .env ###
 .env
+
+### minio ###
+minio.properties
