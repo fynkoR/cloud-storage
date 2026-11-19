@@ -265,7 +265,7 @@ public class AuthControllerTest extends CloudStorageApplicationTests {
     // TODO: хз че тут делать , подумать
 
     @Test
-    public void registryAndLogin() throws Exception {
+    public void registryAndLoginAndLogout() throws Exception {
         UserRequestDto userRequestDto = new UserRequestDto(
                 "username",
                 "password"
