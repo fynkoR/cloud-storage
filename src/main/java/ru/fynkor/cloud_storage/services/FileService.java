@@ -17,9 +17,9 @@ public class FileService {
 
 
     // TODO : доделать аплоуд файла
-    public String upload(){
+    /*public String upload(){
         try{
             MultipartFile file
         }
-    }
+    }*/
 }
