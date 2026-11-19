@@ -34,6 +34,7 @@ import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -263,7 +264,7 @@ public class AuthControllerTest extends CloudStorageApplicationTests {
 
     // TODO: хз че тут делать , подумать
 
-    /*@Test
+    @Test
     public void registryAndLogin() throws Exception {
         UserRequestDto userRequestDto = new UserRequestDto(
                 "username",
@@ -289,5 +290,11 @@ public class AuthControllerTest extends CloudStorageApplicationTests {
                 )
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.username").value(userRequestDto.username()));
-    }*/
+
+        mockMvc.perform(
+                        post(LOGOUT_URI)
+                                .with(user(userRequestDto.username()))
+                )
+                .andExpect(status().is2xxSuccessful());
+    }
 }

@@ -25,6 +25,7 @@ import ru.fynkor.cloud_storage.repositories.UserRepository;
 
 import java.util.Optional;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -71,29 +72,5 @@ public class AuthIntegrationTest extends CloudStorageApplicationTests {
                                 .content(objectMapper.writeValueAsString(userRequestDto))
                 )
                 .andExpect(status().is4xxClientError());
-    }
-
-    @Test
-    public void registryAndLogin() throws Exception {
-        UserRequestDto userRequestDto = new UserRequestDto(
-                "username",
-                "password"
-        );
-
-        mockMvc.perform(
-                        post(REGISTRATION_URI)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(userRequestDto))
-                )
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(jsonPath("$.username").value(userRequestDto.username()));
-
-        mockMvc.perform(
-                        post(AUTH_URI)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(userRequestDto))
-                )
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(jsonPath("$.username").value(userRequestDto.username()));
     }
 }
