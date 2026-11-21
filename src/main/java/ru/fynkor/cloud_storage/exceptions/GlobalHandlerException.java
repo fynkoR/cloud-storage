@@ -56,8 +56,8 @@ public class GlobalHandlerException {
                 .body(errorResponse);
     }
 
-    @ExceptionHandler(InsufficientAuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleInsufficientAuthenticationException(){
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(){
         String errorMessage = "User is not authorized";
 
         ErrorResponse errorResponse = new ErrorResponse(errorMessage);

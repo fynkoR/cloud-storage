@@ -7,8 +7,10 @@ import org.apache.coyote.Response;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -23,6 +25,7 @@ import ru.fynkor.cloud_storage.services.RegistrationService;
 
 @RestController
 @RequestMapping("/api/auth")
+@EnableMethodSecurity
 public class AuthController {
 
     private final RegistrationService registrationService;
@@ -52,6 +55,7 @@ public class AuthController {
     }
 
     @PostMapping("/sign-out")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> logout(
             HttpServletRequest request,
             HttpServletResponse response,

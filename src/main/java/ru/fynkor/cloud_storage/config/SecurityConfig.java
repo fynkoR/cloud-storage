@@ -43,11 +43,6 @@ public class SecurityConfig {
                         .requireExplicitSave(false))
                 .csrf(csrf -> csrf
                         .disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/sign-up", "/api/auth/sign-in", "/error").permitAll()
-                        .requestMatchers("/api/auth/sign-out").authenticated()
-                        .anyRequest().authenticated()
-                )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(delegatedAuthenticationEntryPoint)
                 )

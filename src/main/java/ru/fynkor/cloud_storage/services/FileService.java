@@ -4,16 +4,11 @@ import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
-import io.minio.errors.MinioException;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import ru.fynkor.cloud_storage.entities.Resource;
 import ru.fynkor.cloud_storage.exceptions.UploadException;
 import ru.fynkor.cloud_storage.props.MinioProperties;
-
-import java.io.InputStream;
 
 @Service
 public class FileService {
@@ -29,23 +24,16 @@ public class FileService {
 
     // @Transactional
     // TODO : доделать аплоуд файла
-    public String upload(Resource resource) {
+    public String upload(MultipartFile file) {
         try {
             createBucket();
         } catch (Exception e) {
             throw new UploadException("File upload failed: " + e.getMessage());
         }
-        MultipartFile file = resource.getFile();
         if (file.isEmpty() || file.getOriginalFilename() == null) {
             throw new UploadException("File is empty. File name must have name");
         }
-        String fileName = file.getName();
-        InputStream inputStream;
-        /*try {
-            inputStream = file.getInputStream();
-        } catch (Exception e) {
-            throw new UploadException("File upload failed: " + e.getMessage());
-        }*/
+        String fileName = file.getOriginalFilename();
         saveFile(file, fileName);
         return fileName;
     }
@@ -75,9 +63,4 @@ public class FileService {
                 .build()
         );
     }
-
-    /*private String generateFileName(MultipartFile file){
-        String extension = getExtension(file);
-        return
-    }*/
 }
