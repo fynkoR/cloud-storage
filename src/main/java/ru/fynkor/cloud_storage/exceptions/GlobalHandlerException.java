@@ -110,4 +110,26 @@ public class GlobalHandlerException {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
     }
+
+    @ExceptionHandler(CreateDirectoryException.class)
+    public ResponseEntity<ErrorResponse> handleCreateDirectoryException(CreateDirectoryException exception){
+        String errorMessage = exception.getMessage();
+
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage);
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(PathException.class)
+    public ResponseEntity<ErrorResponse> handlePathException(PathException exception){
+        String errorMessage = exception.getMessage();
+
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage);
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
+    }
 }
