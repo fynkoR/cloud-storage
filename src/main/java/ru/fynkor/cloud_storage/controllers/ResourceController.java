@@ -6,6 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.fynkor.cloud_storage.dto.UploadResponse;
 import ru.fynkor.cloud_storage.services.FileService;
 
 @RestController
@@ -20,11 +21,14 @@ public class ResourceController {
 
     @PostMapping()
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<String> upload(@ModelAttribute MultipartFile file){
-        String fileName = fileService.upload(file);
+    public ResponseEntity<UploadResponse> upload(
+            @RequestParam(required = false) String path,
+            @ModelAttribute MultipartFile file
+    ) {
+        UploadResponse uploadResponse = fileService.upload(path, file);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(fileName);
+                .body(uploadResponse);
     }
 }
 

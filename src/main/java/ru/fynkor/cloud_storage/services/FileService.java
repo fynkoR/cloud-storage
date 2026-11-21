@@ -7,6 +7,8 @@ import io.minio.PutObjectArgs;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import ru.fynkor.cloud_storage.dto.UploadResponse;
+import ru.fynkor.cloud_storage.enums.ResourceType;
 import ru.fynkor.cloud_storage.exceptions.UploadException;
 import ru.fynkor.cloud_storage.props.MinioProperties;
 
@@ -23,8 +25,7 @@ public class FileService {
     }
 
     // @Transactional
-    // TODO : доделать аплоуд файла
-    public String upload(MultipartFile file) {
+    public UploadResponse upload(String path, MultipartFile file) {
         try {
             createBucket();
         } catch (Exception e) {
@@ -35,7 +36,7 @@ public class FileService {
         }
         String fileName = file.getOriginalFilename();
         saveFile(file, fileName);
-        return fileName;
+        return toUploadResponse(file, path);
     }
 
     @SneakyThrows
@@ -61,6 +62,25 @@ public class FileService {
                 .bucket(minioProperties.getBucket())
                 .object(fileName)
                 .build()
+        );
+    }
+
+    private UploadResponse toUploadResponse(MultipartFile file, String path){
+        ResourceType resourceType;
+        if(path == null){
+            path = "";
+        }
+        if(path.endsWith("/")){
+            resourceType = ResourceType.DIRECTORY;
+        }
+        else{
+            resourceType = ResourceType.FILE;
+        }
+        return new UploadResponse(
+                path,
+                file.getOriginalFilename(),
+                file.getSize(),
+                resourceType
         );
     }
 }
