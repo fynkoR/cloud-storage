@@ -1,22 +1,19 @@
 package ru.fynkor.cloud_storage.services;
 
 import io.minio.*;
-import io.minio.messages.Item;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import ru.fynkor.cloud_storage.dto.DirectoryResponse;
 import ru.fynkor.cloud_storage.enums.ResourceType;
 import ru.fynkor.cloud_storage.exceptions.CreateDirectoryException;
-import ru.fynkor.cloud_storage.exceptions.ParentFolderNotExists;
+import ru.fynkor.cloud_storage.exceptions.ParentFolderNotExistsException;
 import ru.fynkor.cloud_storage.exceptions.PathException;
 import ru.fynkor.cloud_storage.props.MinioProperties;
 import ru.fynkor.cloud_storage.utils.Validator;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 @Service
 public class DirectoryService {
@@ -52,7 +49,7 @@ public class DirectoryService {
         String pathToDirectory = getPathToDirectory(trimPath);
 
         if(!isParentFolderExists(pathToDirectory)){
-            throw new ParentFolderNotExists(pathToDirectory);
+            throw new ParentFolderNotExistsException(pathToDirectory);
         }
 
         saveDirectory(trimPath);
