@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.fynkor.cloud_storage.dto.DirectoryResponse;
 import ru.fynkor.cloud_storage.enums.ResourceType;
 import ru.fynkor.cloud_storage.exceptions.CreateDirectoryException;
+import ru.fynkor.cloud_storage.exceptions.FolderYetExistsException;
 import ru.fynkor.cloud_storage.exceptions.ParentFolderNotExistsException;
 import ru.fynkor.cloud_storage.exceptions.PathException;
 import ru.fynkor.cloud_storage.props.MinioProperties;
@@ -30,7 +31,6 @@ public class DirectoryService {
     }
 
     // TODO: сделать ошибки
-    //  404 - Родительская папка не существует
     //  409 - папка уже существует
 
     public DirectoryResponse create(String path){
@@ -47,14 +47,18 @@ public class DirectoryService {
 
         String trimPath = path.trim();
         String pathToDirectory = getPathToDirectory(trimPath);
+        String nameDirectory = getNameDirectory(trimPath);
 
         if(!isParentFolderExists(pathToDirectory)){
             throw new ParentFolderNotExistsException(pathToDirectory);
         }
 
+        if(isFolderYetExists(trimPath)){
+            throw new FolderYetExistsException(nameDirectory);
+        }
+
         saveDirectory(trimPath);
 
-        String nameDirectory = getNameDirectory(trimPath);
         return new DirectoryResponse(
                 pathToDirectory,
                 nameDirectory,
@@ -100,6 +104,11 @@ public class DirectoryService {
         return getPath.replace("\\", "/");
     }
 
+    private String getNameDirectory(String path){
+        Path getPath = Paths.get(path);
+        return getPath.getFileName().toString();
+    }
+
     private boolean isParentFolderExists(String pathToDirectory){
         int lastIndexOfSlash = pathToDirectory.lastIndexOf("/");
 
@@ -107,20 +116,23 @@ public class DirectoryService {
             return true;
         }
 
-        String parentPrefix = pathToDirectory.substring(0, lastIndexOfSlash);
-
         return minioClient.listObjects(
                 ListObjectsArgs
                         .builder()
                         .bucket(minioProperties.getBucket())
-                        .prefix(parentPrefix)
+                        .prefix(pathToDirectory)
                         .build()
         ).iterator().hasNext();
     }
 
-    private String getNameDirectory(String path){
-        Path getPath = Paths.get(path);
-        return getPath.getFileName().toString();
+    private boolean isFolderYetExists(String path){
+        return minioClient.listObjects(
+                ListObjectsArgs
+                        .builder()
+                        .bucket(minioProperties.getBucket())
+                        .prefix(path)
+                        .build()
+        ).iterator().hasNext();
     }
 
     @SneakyThrows
