@@ -139,4 +139,15 @@ public class GlobalHandlerException {
                 .status(HttpStatus.NOT_FOUND)
                 .body(errorResponse);
     }
+
+    @ExceptionHandler(FolderYetExistsException.class)
+    public ResponseEntity<ErrorResponse> handleFolderYetExistsException(FolderYetExistsException exception){
+        String errorMessage = exception.getMessage();
+
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage);
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(errorResponse);
+    }
 }
