@@ -31,7 +31,6 @@ public class DirectoryService {
     }
 
     // TODO: сделать ошибки
-
     public DirectoryResponse create(String path){
         try{
             createBucket();
