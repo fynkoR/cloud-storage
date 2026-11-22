@@ -1,7 +1,6 @@
 package ru.fynkor.cloud_storage.services;
 
 import io.minio.*;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import ru.fynkor.cloud_storage.dto.DirectoryResponse;
 import ru.fynkor.cloud_storage.enums.ResourceType;
@@ -9,10 +8,8 @@ import ru.fynkor.cloud_storage.exceptions.CreateDirectoryException;
 import ru.fynkor.cloud_storage.exceptions.FolderYetExistsException;
 import ru.fynkor.cloud_storage.exceptions.ParentFolderNotExistsException;
 import ru.fynkor.cloud_storage.exceptions.PathException;
-import ru.fynkor.cloud_storage.props.MinioProperties;
 import ru.fynkor.cloud_storage.utils.Validator;
 
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 

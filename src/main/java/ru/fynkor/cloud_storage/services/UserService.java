@@ -11,4 +11,10 @@ public class UserService {
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         return customUserDetails.getUsername();
     }
+
+    public Integer getIdUserByAuthentication(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        return customUserDetails.getUser().getId();
+    }
 }

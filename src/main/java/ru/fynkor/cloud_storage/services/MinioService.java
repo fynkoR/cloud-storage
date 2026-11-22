@@ -14,10 +14,12 @@ public class MinioService {
 
     private final MinioClient minioClient;
     private final MinioProperties minioProperties;
+    private final UserService userService;
 
-    public MinioService(MinioClient minioClient, MinioProperties minioProperties) {
+    public MinioService(MinioClient minioClient, MinioProperties minioProperties, UserService userService) {
         this.minioClient = minioClient;
         this.minioProperties = minioProperties;
+        this.userService = userService;
     }
 
     @SneakyThrows
@@ -35,10 +37,10 @@ public class MinioService {
         }
     }
 
-    public boolean isParentFolderExists(String pathToDirectory){
+    public boolean isParentFolderExists(String pathToDirectory) {
         int lastIndexOfSlash = pathToDirectory.lastIndexOf("/");
 
-        if(lastIndexOfSlash <= 0){
+        if (lastIndexOfSlash <= 0) {
             return true;
         }
 
@@ -51,7 +53,7 @@ public class MinioService {
         ).iterator().hasNext();
     }
 
-    public boolean isFolderYetExists(String path){
+    public boolean isFolderYetExists(String path) {
         return minioClient.listObjects(
                 ListObjectsArgs
                         .builder()
@@ -62,8 +64,8 @@ public class MinioService {
     }
 
     @SneakyThrows
-    public void saveDirectory(String path){
-        try(InputStream inputStream = InputStream.nullInputStream()) {
+    public void saveDirectory(String path) {
+        try (InputStream inputStream = InputStream.nullInputStream()) {
             minioClient.putObject(PutObjectArgs
                     .builder()
                     .bucket(minioProperties.getBucket())
@@ -71,5 +73,11 @@ public class MinioService {
                     .stream(inputStream, EMPTY_SIZE, AUTO_PART_SIZE)
                     .build());
         }
+    }
+
+
+    // TODO: доделать метод для получения пути для определенного юзера , у которого Authentication
+    private String getPathForUser(String path){
+
     }
 }
