@@ -54,6 +54,7 @@ public class FileService {
         }
     }
 
+    // TODO: переделать на UploadObject
     @SneakyThrows
     private void saveFile(MultipartFile file, String fileName) {
         minioClient.putObject(PutObjectArgs

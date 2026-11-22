@@ -1,8 +1,6 @@
 package ru.fynkor.cloud_storage.services;
 
-import io.minio.BucketExistsArgs;
-import io.minio.MakeBucketArgs;
-import io.minio.MinioClient;
+import io.minio.*;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import ru.fynkor.cloud_storage.dto.DirectoryResponse;
@@ -12,11 +10,17 @@ import ru.fynkor.cloud_storage.exceptions.PathException;
 import ru.fynkor.cloud_storage.props.MinioProperties;
 import ru.fynkor.cloud_storage.utils.Validator;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Service
 public class DirectoryService {
+    private static final Long EMPTY_SIZE = 0L;
+    private static final Long AUTO_PART_SIZE = -1L;
+
     private final MinioClient minioClient;
     private final MinioProperties minioProperties;
 
@@ -26,7 +30,7 @@ public class DirectoryService {
         this.minioProperties = minioProperties;
     }
 
-    // TODO: доделать метод создания папки
+    // TODO: сделать ошибки
 
     public DirectoryResponse create(String path){
         try{
@@ -35,14 +39,18 @@ public class DirectoryService {
             throw new CreateDirectoryException("Create directory failed: " + e.getMessage());
         }
 
-        if(!Validator.isValidPath(path)){
-            throw new PathException("Path must be not null. Must be contain </>. Shouldn't be \\ , : , * , ? , \" , < , > , |");
+        String errors = Validator.validatePath(path);
+
+        if(!errors.isEmpty()){
+            throw new PathException(errors);
         }
 
-        String pathToDirectory = getPathToDirectory(path);
-        String nameDirectory = getNameDirectory(path);
+        String trimPath = path.trim();
 
-        saveDirectory(path);
+        String pathToDirectory = getPathToDirectory(trimPath);
+        String nameDirectory = getNameDirectory(trimPath);
+
+        saveDirectory(trimPath);
         return new DirectoryResponse(
                 pathToDirectory,
                 nameDirectory,
@@ -66,17 +74,46 @@ public class DirectoryService {
     }
 
     private String getPathToDirectory(String path){
+        if(getCountSlashInPath(path) == 1){
+            return "/";
+        }
         Path getPath = Paths.get(path);
         return normalizePathToDirectory(getPath.getParent().toString());
     }
 
-    private String normalizePathToDirectory(String pathParent){
-        pathParent += "/";
-        return pathParent.replace("\\", "/");
+    private int getCountSlashInPath(String path){
+        int count = 0;
+        for(Character ch : path.toCharArray()){
+            if(ch.equals('/')){
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private String normalizePathToDirectory(String getPath){
+        getPath += "/";
+        return getPath.replace("\\", "/");
     }
 
     private String getNameDirectory(String path){
         Path getPath = Paths.get(path);
-        return getPath.getFileName().toString();
+        return normalizeNameDirectory(getPath.getFileName().toString());
+    }
+
+    private String normalizeNameDirectory(String getPath){
+        return getPath + "/";
+    }
+
+    @SneakyThrows
+    private void saveDirectory(String path){
+        try(InputStream inputStream = InputStream.nullInputStream()) {
+            minioClient.putObject(PutObjectArgs
+                    .builder()
+                    .bucket(minioProperties.getBucket())
+                    .object(path)
+                    .stream(inputStream, EMPTY_SIZE, AUTO_PART_SIZE)
+                    .build());
+        }
     }
 }

@@ -19,6 +19,9 @@ public class ResourceController {
         this.fileService = fileService;
     }
 
+
+    // TODO: сделать ошибки
+
     @PostMapping()
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UploadResponse> upload(
