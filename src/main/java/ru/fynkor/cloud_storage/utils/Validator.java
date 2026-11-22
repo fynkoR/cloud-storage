@@ -14,15 +14,13 @@ public final class Validator {
 
     public static boolean isValidPath(String path){
         if(path == null || path.isBlank() || !path.contains("/")){
-            throw new PathException("Path must not empty, consist only is space. Must contain </>");
+            return false;
         }
 
         String targetCharsRegex = "[\\:*?\"<>|]";
         Pattern pattern = Pattern.compile(targetCharsRegex);
         Matcher matcher = pattern.matcher(path);
 
-        if(matcher.find()){
-            throw new PathException("Path must not : \\ ,: ,* ,? , ,\" ,< ,>, |");
-        }
+        return !matcher.find();
     }
 }

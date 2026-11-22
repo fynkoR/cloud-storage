@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import ru.fynkor.cloud_storage.dto.DirectoryResponse;
 import ru.fynkor.cloud_storage.enums.ResourceType;
 import ru.fynkor.cloud_storage.exceptions.CreateDirectoryException;
+import ru.fynkor.cloud_storage.exceptions.PathException;
 import ru.fynkor.cloud_storage.props.MinioProperties;
+import ru.fynkor.cloud_storage.utils.Validator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,6 +33,10 @@ public class DirectoryService {
             createBucket();
         }catch (Exception e){
             throw new CreateDirectoryException("Create directory failed: " + e.getMessage());
+        }
+
+        if(!Validator.isValidPath(path)){
+            throw new PathException("Path must be not null. Must be contain </>. Shouldn't be \\ , : , * , ? , \" , < , > , |");
         }
 
         String pathToDirectory = getPathToDirectory(path);
@@ -59,9 +65,18 @@ public class DirectoryService {
         }
     }
 
-    // TODO : допилить метод
     private String getPathToDirectory(String path){
-        Path pathParent = Paths.get(path);
-        return pathParent.getParent().toString();
+        Path getPath = Paths.get(path);
+        return normalizePathToDirectory(getPath.getParent().toString());
+    }
+
+    private String normalizePathToDirectory(String pathParent){
+        pathParent += "/";
+        return pathParent.replace("\\", "/");
+    }
+
+    private String getNameDirectory(String path){
+        Path getPath = Paths.get(path);
+        return getPath.getFileName().toString();
     }
 }
