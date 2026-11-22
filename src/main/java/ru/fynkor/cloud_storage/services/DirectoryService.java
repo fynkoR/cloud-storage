@@ -1,11 +1,13 @@
 package ru.fynkor.cloud_storage.services;
 
 import io.minio.*;
+import io.minio.messages.Item;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import ru.fynkor.cloud_storage.dto.DirectoryResponse;
 import ru.fynkor.cloud_storage.enums.ResourceType;
 import ru.fynkor.cloud_storage.exceptions.CreateDirectoryException;
+import ru.fynkor.cloud_storage.exceptions.ParentFolderNotExists;
 import ru.fynkor.cloud_storage.exceptions.PathException;
 import ru.fynkor.cloud_storage.props.MinioProperties;
 import ru.fynkor.cloud_storage.utils.Validator;
@@ -31,13 +33,15 @@ public class DirectoryService {
     }
 
     // TODO: сделать ошибки
+    //  404 - Родительская папка не существует
+    //  409 - папка уже существует
+
     public DirectoryResponse create(String path){
         try{
             createBucket();
         }catch (Exception e){
             throw new CreateDirectoryException("Create directory failed: " + e.getMessage());
         }
-
         String errors = Validator.validatePath(path);
 
         if(!errors.isEmpty()){
@@ -45,11 +49,15 @@ public class DirectoryService {
         }
 
         String trimPath = path.trim();
-
         String pathToDirectory = getPathToDirectory(trimPath);
-        String nameDirectory = getNameDirectory(trimPath);
+
+        if(!isParentFolderExists(pathToDirectory)){
+            throw new ParentFolderNotExists(pathToDirectory);
+        }
 
         saveDirectory(trimPath);
+
+        String nameDirectory = getNameDirectory(trimPath);
         return new DirectoryResponse(
                 pathToDirectory,
                 nameDirectory,
@@ -95,13 +103,27 @@ public class DirectoryService {
         return getPath.replace("\\", "/");
     }
 
-    private String getNameDirectory(String path){
-        Path getPath = Paths.get(path);
-        return normalizeNameDirectory(getPath.getFileName().toString());
+    private boolean isParentFolderExists(String pathToDirectory){
+        int lastIndexOfSlash = pathToDirectory.lastIndexOf("/");
+
+        if(lastIndexOfSlash <= 0){
+            return true;
+        }
+
+        String parentPrefix = pathToDirectory.substring(0, lastIndexOfSlash);
+
+        return minioClient.listObjects(
+                ListObjectsArgs
+                        .builder()
+                        .bucket(minioProperties.getBucket())
+                        .prefix(parentPrefix)
+                        .build()
+        ).iterator().hasNext();
     }
 
-    private String normalizeNameDirectory(String getPath){
-        return getPath + "/";
+    private String getNameDirectory(String path){
+        Path getPath = Paths.get(path);
+        return getPath.getFileName().toString();
     }
 
     @SneakyThrows
