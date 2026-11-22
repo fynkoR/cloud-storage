@@ -19,13 +19,10 @@ public class DirectoryController {
         this.directoryService = directoryService;
     }
 
-
-    //TODO: доделать endpoint
-
     @PostMapping()
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<DirectoryResponse> createDirectory(
-            @RequestParam(required = false) String path
+            @RequestParam String path
     ){
         DirectoryResponse directoryResponse = directoryService.create(path);
         return ResponseEntity

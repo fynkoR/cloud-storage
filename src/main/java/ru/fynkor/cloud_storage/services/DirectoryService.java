@@ -18,27 +18,20 @@ import java.nio.file.Paths;
 
 @Service
 public class DirectoryService {
-    private static final Long EMPTY_SIZE = 0L;
-    private static final Long AUTO_PART_SIZE = -1L;
 
-    private final MinioClient minioClient;
-    private final MinioProperties minioProperties;
+    private final MinioService minioService;
 
-
-    public DirectoryService(MinioClient minioClient, MinioProperties minioProperties) {
-        this.minioClient = minioClient;
-        this.minioProperties = minioProperties;
+    public DirectoryService(MinioService minioService) {
+        this.minioService = minioService;
     }
-
-    // TODO: сделать ошибки
-    //  409 - папка уже существует
 
     public DirectoryResponse create(String path){
         try{
-            createBucket();
+            minioService.createBucket();
         }catch (Exception e){
             throw new CreateDirectoryException("Create directory failed: " + e.getMessage());
         }
+
         String errors = Validator.validatePath(path);
 
         if(!errors.isEmpty()){
@@ -49,36 +42,21 @@ public class DirectoryService {
         String pathToDirectory = getPathToDirectory(trimPath);
         String nameDirectory = getNameDirectory(trimPath);
 
-        if(!isParentFolderExists(pathToDirectory)){
+        if(!minioService.isParentFolderExists(pathToDirectory)){
             throw new ParentFolderNotExistsException(pathToDirectory);
         }
 
-        if(isFolderYetExists(trimPath)){
+        if(minioService.isFolderYetExists(trimPath)){
             throw new FolderYetExistsException(nameDirectory);
         }
 
-        saveDirectory(trimPath);
+        minioService.saveDirectory(trimPath);
 
         return new DirectoryResponse(
                 pathToDirectory,
                 nameDirectory,
                 ResourceType.DIRECTORY
         );
-    }
-
-    @SneakyThrows
-    private void createBucket() {
-        boolean found = minioClient.bucketExists(BucketExistsArgs.builder()
-                .bucket(minioProperties.getBucket())
-                .build()
-        );
-        if (!found) {
-            minioClient.makeBucket(MakeBucketArgs
-                    .builder()
-                    .bucket(minioProperties.getBucket())
-                    .build()
-            );
-        }
     }
 
     private String getPathToDirectory(String path){
@@ -107,43 +85,5 @@ public class DirectoryService {
     private String getNameDirectory(String path){
         Path getPath = Paths.get(path);
         return getPath.getFileName().toString();
-    }
-
-    private boolean isParentFolderExists(String pathToDirectory){
-        int lastIndexOfSlash = pathToDirectory.lastIndexOf("/");
-
-        if(lastIndexOfSlash <= 0){
-            return true;
-        }
-
-        return minioClient.listObjects(
-                ListObjectsArgs
-                        .builder()
-                        .bucket(minioProperties.getBucket())
-                        .prefix(pathToDirectory)
-                        .build()
-        ).iterator().hasNext();
-    }
-
-    private boolean isFolderYetExists(String path){
-        return minioClient.listObjects(
-                ListObjectsArgs
-                        .builder()
-                        .bucket(minioProperties.getBucket())
-                        .prefix(path)
-                        .build()
-        ).iterator().hasNext();
-    }
-
-    @SneakyThrows
-    private void saveDirectory(String path){
-        try(InputStream inputStream = InputStream.nullInputStream()) {
-            minioClient.putObject(PutObjectArgs
-                    .builder()
-                    .bucket(minioProperties.getBucket())
-                    .object(path)
-                    .stream(inputStream, EMPTY_SIZE, AUTO_PART_SIZE)
-                    .build());
-        }
     }
 }
