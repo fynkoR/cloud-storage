@@ -1,5 +1,6 @@
 package ru.fynkor.cloud_storage.exceptions;
 
+import io.minio.errors.MinioException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -148,6 +149,28 @@ public class GlobalHandlerException {
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(FileYetExistsException.class)
+    public ResponseEntity<ErrorResponse> handleFileYetExistsException(FileYetExistsException exception){
+        String errorMessage = exception.getMessage();
+
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage);
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(MinioException.class)
+    public ResponseEntity<ErrorResponse> handleMinioException(MinioException exception){
+        String errorMessage = exception.getMessage();
+
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage);
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(errorResponse);
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.fynkor.cloud_storage.dto.UploadResponse;
 import ru.fynkor.cloud_storage.enums.ResourceType;
+import ru.fynkor.cloud_storage.exceptions.FileYetExistsException;
 import ru.fynkor.cloud_storage.exceptions.UploadException;
 import ru.fynkor.cloud_storage.props.MinioProperties;
 
@@ -29,6 +30,13 @@ public class FileService {
         if (file.isEmpty() || file.getOriginalFilename() == null) {
             throw new UploadException("File is empty. File name must have name");
         }
+
+        String pathWithFilename = path + file.getOriginalFilename();
+
+        if(minioService.isFileYetExists(pathWithFilename)){
+            throw new FileYetExistsException("File yet exists: " + file.getOriginalFilename());
+        }
+
         minioService.saveFile(file, path);
 
         return new UploadResponse(
