@@ -38,7 +38,10 @@ public class MinioService {
     }
 
     public boolean isParentFolderExists(String pathToDirectory) {
-        int lastIndexOfSlash = pathToDirectory.lastIndexOf("/");
+
+        String userPathToDirectory = getPathForUser(pathToDirectory);
+
+        int lastIndexOfSlash = userPathToDirectory.lastIndexOf("/");
 
         if (lastIndexOfSlash <= 0) {
             return true;
@@ -48,36 +51,39 @@ public class MinioService {
                 ListObjectsArgs
                         .builder()
                         .bucket(minioProperties.getBucket())
-                        .prefix(pathToDirectory)
+                        .prefix(userPathToDirectory)
                         .build()
         ).iterator().hasNext();
     }
 
     public boolean isFolderYetExists(String path) {
+        String userPath = getPathForUser(path);
+
         return minioClient.listObjects(
                 ListObjectsArgs
                         .builder()
                         .bucket(minioProperties.getBucket())
-                        .prefix(path)
+                        .prefix(userPath)
                         .build()
         ).iterator().hasNext();
     }
 
     @SneakyThrows
     public void saveDirectory(String path) {
+        String userPath = getPathForUser(path);
+
         try (InputStream inputStream = InputStream.nullInputStream()) {
             minioClient.putObject(PutObjectArgs
                     .builder()
                     .bucket(minioProperties.getBucket())
-                    .object(path)
+                    .object(userPath)
                     .stream(inputStream, EMPTY_SIZE, AUTO_PART_SIZE)
                     .build());
         }
     }
 
-
-    // TODO: доделать метод для получения пути для определенного юзера , у которого Authentication
     private String getPathForUser(String path){
-
+        Integer id = userService.getIdUserByAuthentication();
+        return "user-" + id + "-files" + "/" + path;
     }
 }
