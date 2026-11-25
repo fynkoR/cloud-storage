@@ -3,6 +3,7 @@ package ru.fynkor.cloud_storage.services;
 import io.minio.*;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.fynkor.cloud_storage.props.MinioProperties;
 
 import java.io.InputStream;
@@ -11,6 +12,7 @@ import java.io.InputStream;
 public class MinioService {
     private static final Long EMPTY_SIZE = 0L;
     private static final Long AUTO_PART_SIZE = -1L;
+    private static final Long MAX_SIZE_FILE = 20L * 1024 * 1024;
 
     private final MinioClient minioClient;
     private final MinioProperties minioProperties;
@@ -80,6 +82,19 @@ public class MinioService {
                     .stream(inputStream, EMPTY_SIZE, AUTO_PART_SIZE)
                     .build());
         }
+    }
+
+    @SneakyThrows
+    public void saveFile(MultipartFile file, String path){
+        String userPath = getPathForUser(path);
+        String userPathWithFileName = userPath + "/" + file.getOriginalFilename();
+        minioClient.putObject(PutObjectArgs
+                .builder()
+                .bucket(minioProperties.getBucket())
+                .stream(file.getInputStream(), file.getSize(), MAX_SIZE_FILE)
+                .object(userPathWithFileName)
+                .build()
+        );
     }
 
     private String getPathForUser(String path){

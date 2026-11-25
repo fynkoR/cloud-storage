@@ -14,74 +14,28 @@ import ru.fynkor.cloud_storage.props.MinioProperties;
 
 @Service
 public class FileService {
-    private static final Long MAX_SIZE_FILE = 20L * 1024 * 1024;
+    private final MinioService minioService;
 
-    private final MinioClient minioClient;
-    private final MinioProperties minioProperties;
-
-    public FileService(MinioClient minioClient, MinioProperties minioProperties) {
-        this.minioClient = minioClient;
-        this.minioProperties = minioProperties;
+    public FileService(MinioService minioService) {
+        this.minioService = minioService;
     }
 
-    // @Transactional
     public UploadResponse upload(String path, MultipartFile file) {
         try {
-            createBucket();
+            minioService.createBucket();
         } catch (Exception e) {
             throw new UploadException("File upload failed: " + e.getMessage());
         }
         if (file.isEmpty() || file.getOriginalFilename() == null) {
             throw new UploadException("File is empty. File name must have name");
         }
-        String fileName = file.getOriginalFilename();
-        saveFile(file, fileName);
-        return toUploadResponse(file, path);
-    }
+        minioService.saveFile(file, path);
 
-    @SneakyThrows
-    private void createBucket() {
-        boolean found = minioClient.bucketExists(BucketExistsArgs.builder()
-                .bucket(minioProperties.getBucket())
-                .build()
-        );
-        if (!found) {
-            minioClient.makeBucket(MakeBucketArgs
-                    .builder()
-                    .bucket(minioProperties.getBucket())
-                    .build()
-            );
-        }
-    }
-
-    // TODO: переделать на UploadObject
-    @SneakyThrows
-    private void saveFile(MultipartFile file, String fileName) {
-        minioClient.putObject(PutObjectArgs
-                .builder()
-                .stream(file.getInputStream(), file.getSize(), MAX_SIZE_FILE)
-                .bucket(minioProperties.getBucket())
-                .object(fileName)
-                .build()
-        );
-    }
-
-    private UploadResponse toUploadResponse(MultipartFile file, String path){
-        ResourceType resourceType;
-        if(path == null){
-            path = "";
-        }
-        if(path.endsWith("/")){
-            resourceType = ResourceType.DIRECTORY;
-        }
-        else{
-            resourceType = ResourceType.FILE;
-        }
         return new UploadResponse(
                 path,
                 file.getOriginalFilename(),
                 file.getSize(),
-                resourceType
+                ResourceType.FILE
         );
     }
 }
