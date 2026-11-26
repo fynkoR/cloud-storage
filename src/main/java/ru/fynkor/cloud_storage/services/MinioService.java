@@ -116,7 +116,17 @@ public class MinioService {
         ).iterator().hasNext();
     }
 
-    public
+    @SneakyThrows
+    public Long getSizeFile(String path){
+        String userPath = getPathForUser(path);
+
+        return minioClient.statObject(StatObjectArgs
+                .builder()
+                .bucket(minioProperties.getBucket())
+                .object(userPath)
+                .build()
+        ).size();
+    }
 
     private String getPathForUser(String path){
         Integer id = userService.getIdUserByAuthentication();

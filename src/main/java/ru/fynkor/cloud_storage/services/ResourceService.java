@@ -5,15 +5,16 @@ import ru.fynkor.cloud_storage.dto.DirectoryResponse;
 import ru.fynkor.cloud_storage.dto.FileResponse;
 import ru.fynkor.cloud_storage.dto.ResourceResponse;
 import ru.fynkor.cloud_storage.dto.UploadResponse;
+import ru.fynkor.cloud_storage.enums.ResourceType;
 import ru.fynkor.cloud_storage.exceptions.PathException;
 import ru.fynkor.cloud_storage.exceptions.ResourceNotFoundException;
+import ru.fynkor.cloud_storage.utils.PathParser;
 import ru.fynkor.cloud_storage.utils.Validator;
 
 @Service
 public class ResourceService {
 
     private final MinioService minioService;
-
 
     public ResourceService(MinioService minioService) {
         this.minioService = minioService;
@@ -31,20 +32,23 @@ public class ResourceService {
             throw new ResourceNotFoundException(trimPath);
         }
 
-        String pathToResource = getPathToResource(trimPath);
-        String nameResource = getNameResource(trimPath);
-
-        // TODO: необходима логика для чтобы брать путь до ресурса , имя ресурса (мб маппер)
+        String pathToResource = PathParser.getPathToResource(trimPath);
+        String nameResource = PathParser.getNameResource(trimPath);
 
         if(trimPath.endsWith("/")){
             return new DirectoryResponse(
-                    trimPath,
-
-            )
+                    pathToResource,
+                    nameResource,
+                    ResourceType.DIRECTORY
+            );
         }
-    }
 
-    private String getPathToResource(String path){
-
+        Long size = minioService.getSizeFile(trimPath);
+        return new FileResponse(
+                pathToResource,
+                nameResource,
+                size,
+                ResourceType.FILE
+        );
     }
 }

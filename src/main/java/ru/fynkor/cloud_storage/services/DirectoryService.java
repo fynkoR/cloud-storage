@@ -8,6 +8,7 @@ import ru.fynkor.cloud_storage.exceptions.CreateDirectoryException;
 import ru.fynkor.cloud_storage.exceptions.FolderYetExistsException;
 import ru.fynkor.cloud_storage.exceptions.ParentFolderNotExistsException;
 import ru.fynkor.cloud_storage.exceptions.PathException;
+import ru.fynkor.cloud_storage.utils.PathParser;
 import ru.fynkor.cloud_storage.utils.Validator;
 
 import java.nio.file.Path;
@@ -36,8 +37,8 @@ public class DirectoryService {
         }
 
         String trimPath = path.trim();
-        String pathToDirectory = getPathToDirectory(trimPath);
-        String nameDirectory = getNameDirectory(trimPath);
+        String pathToDirectory = PathParser.getPathToResource(trimPath);
+        String nameDirectory = PathParser.getNameResource(trimPath);
 
         if(!minioService.isParentFolderExists(pathToDirectory)){
             throw new ParentFolderNotExistsException(pathToDirectory);
@@ -54,33 +55,5 @@ public class DirectoryService {
                 nameDirectory,
                 ResourceType.DIRECTORY
         );
-    }
-
-    private String getPathToDirectory(String path){
-        if(getCountSlashInPath(path) == 1){
-            return "/";
-        }
-        Path getPath = Paths.get(path);
-        return normalizePathToDirectory(getPath.getParent().toString());
-    }
-
-    private int getCountSlashInPath(String path){
-        int count = 0;
-        for(Character ch : path.toCharArray()){
-            if(ch.equals('/')){
-                count++;
-            }
-        }
-        return count;
-    }
-
-    private String normalizePathToDirectory(String getPath){
-        getPath += "/";
-        return getPath.replace("\\", "/");
-    }
-
-    private String getNameDirectory(String path){
-        Path getPath = Paths.get(path);
-        return getPath.getFileName().toString();
     }
 }

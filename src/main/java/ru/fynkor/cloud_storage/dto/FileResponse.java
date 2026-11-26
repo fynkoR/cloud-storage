@@ -8,18 +8,4 @@ public record FileResponse(
         Long size,
         ResourceType type
 ) implements ResourceResponse {
-    @Override
-    public String getPath() {
-        return this.path;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public ResourceType getResourceType() {
-        return this.type;
-    }
 }
