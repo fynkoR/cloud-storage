@@ -17,7 +17,19 @@ public final class Validator {
     private Validator() {
     }
 
-    public static String validatePath(String path) {
+    public static String validatePath(String path){
+        if(path.endsWith("/")){
+            return validatePathToDirectory(path);
+        }
+
+        int lastIndexOfSlash = path.lastIndexOf("/");
+        String parentPath = path.substring(0, lastIndexOfSlash) + "/";
+        String filename = path.substring(lastIndexOfSlash + 1);
+
+        return validatePathToDirectory(parentPath) + validateFilename(filename);
+    }
+
+    public static String validatePathToDirectory(String path) {
         List<String> errors = new ArrayList<>();
 
         if (path == null || path.isBlank()) {
@@ -61,5 +73,27 @@ public final class Validator {
             }
         }
         return false;
+    }
+
+    public static String validateFilename(String filename){
+        List<String> errors = new ArrayList<>();
+
+        String trimFilename = filename.trim();
+
+        if(trimFilename.endsWith(".")){
+            errors.add("Filename shouldn't ends with <.>");
+        }
+
+        if(trimFilename.length() > 255){
+            errors.add("Filename should be < 255 chars");
+        }
+
+        Pattern pattern = Pattern.compile(TARGET_CHARS_REGEX);
+        Matcher matcher = pattern.matcher(trimFilename);
+        if(matcher.find()){
+            errors.add("Filename shouldn't be: \\ , : , * , ? , \" , < , > , | ");
+        }
+
+        return String.join(", ", errors);
     }
 }

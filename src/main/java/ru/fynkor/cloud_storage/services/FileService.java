@@ -34,7 +34,7 @@ public class FileService {
         }
         String errors = "";
         if(!path.isEmpty()){
-            errors = Validator.validatePath(path);
+            errors = Validator.validatePathToDirectory(path);
         }
         if(!errors.isEmpty()){
             throw new PathException(errors);

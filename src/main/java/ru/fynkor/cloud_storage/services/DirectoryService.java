@@ -29,7 +29,7 @@ public class DirectoryService {
             throw new CreateDirectoryException("Create directory failed: " + e.getMessage());
         }
 
-        String errors = Validator.validatePath(path);
+        String errors = Validator.validatePathToDirectory(path);
 
         if(!errors.isEmpty()){
             throw new PathException(errors);

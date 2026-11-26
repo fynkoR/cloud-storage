@@ -9,15 +9,18 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.fynkor.cloud_storage.dto.UploadResponse;
 import ru.fynkor.cloud_storage.services.FileService;
+import ru.fynkor.cloud_storage.services.ResourceService;
 
 @RestController
 @RequestMapping("/api/resource")
 @EnableMethodSecurity
 public class ResourceController {
     private final FileService fileService;
+    private final ResourceService resourceService;
 
-    public ResourceController(FileService fileService) {
+    public ResourceController(FileService fileService, ResourceService resourceService) {
         this.fileService = fileService;
+        this.resourceService = resourceService;
     }
 
     // TODO: решить на счет папок , проверка на символы и т.д.
@@ -34,12 +37,15 @@ public class ResourceController {
                 .body(uploadResponse);
     }
 
-    /* @GetMapping
+    @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UploadResponse> getInfo(
-            @RequestParam
+            @RequestParam String path
     ){
-
-    }*/
+        UploadResponse uploadResponse = resourceService.getInfo(path);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(uploadResponse);
+    }
 }
 
