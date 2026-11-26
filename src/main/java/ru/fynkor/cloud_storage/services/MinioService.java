@@ -97,7 +97,6 @@ public class MinioService {
 
     public boolean isFileYetExists(String pathWithFilename){
         String userPath = getPathForUser(pathWithFilename);
-
         return minioClient.listObjects(ListObjectsArgs
                 .builder()
                 .bucket(minioProperties.getBucket())

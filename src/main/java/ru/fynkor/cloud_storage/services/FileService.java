@@ -10,8 +10,10 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.fynkor.cloud_storage.dto.UploadResponse;
 import ru.fynkor.cloud_storage.enums.ResourceType;
 import ru.fynkor.cloud_storage.exceptions.FileYetExistsException;
+import ru.fynkor.cloud_storage.exceptions.PathException;
 import ru.fynkor.cloud_storage.exceptions.UploadException;
 import ru.fynkor.cloud_storage.props.MinioProperties;
+import ru.fynkor.cloud_storage.utils.Validator;
 
 @Service
 public class FileService {
@@ -29,6 +31,13 @@ public class FileService {
         }
         if (file.isEmpty() || file.getOriginalFilename() == null) {
             throw new UploadException("File is empty. File name must have name");
+        }
+        String errors = "";
+        if(!path.isEmpty()){
+            errors = Validator.validatePath(path);
+        }
+        if(!errors.isEmpty()){
+            throw new PathException(errors);
         }
 
         String pathWithFilename = path + file.getOriginalFilename();

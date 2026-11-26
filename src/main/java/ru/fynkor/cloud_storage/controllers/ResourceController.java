@@ -1,5 +1,6 @@
 package ru.fynkor.cloud_storage.controllers;
 
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,13 +20,12 @@ public class ResourceController {
         this.fileService = fileService;
     }
 
-
-    // TODO: сделать ошибки
+    // TODO: решить на счет папок , проверка на символы и т.д.
 
     @PostMapping()
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UploadResponse> upload(
-            @RequestParam(required = false) String path,
+            @RequestParam(defaultValue = "") String path,
             @ModelAttribute MultipartFile file
     ) {
         UploadResponse uploadResponse = fileService.upload(path, file);
@@ -33,5 +33,13 @@ public class ResourceController {
                 .status(HttpStatus.CREATED)
                 .body(uploadResponse);
     }
+
+    /* @GetMapping
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UploadResponse> getInfo(
+            @RequestParam
+    ){
+
+    }*/
 }
 
