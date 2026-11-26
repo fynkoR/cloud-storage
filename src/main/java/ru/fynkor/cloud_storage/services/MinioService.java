@@ -105,6 +105,19 @@ public class MinioService {
         ).iterator().hasNext();
     }
 
+    public boolean isResourceExists(String path){
+        String userPath = getPathForUser(path);
+
+        return minioClient.listObjects(ListObjectsArgs
+                .builder()
+                .bucket(minioProperties.getBucket())
+                .prefix(userPath)
+                .build()
+        ).iterator().hasNext();
+    }
+
+    public
+
     private String getPathForUser(String path){
         Integer id = userService.getIdUserByAuthentication();
         return "user-" + id + "-files" + "/" + path;

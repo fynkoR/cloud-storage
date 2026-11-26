@@ -163,6 +163,17 @@ public class GlobalHandlerException {
                 .body(errorResponse);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException exception){
+        String errorMessage = exception.getMessage();
+
+        ErrorResponse errorResponse = new ErrorResponse(errorMessage);
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
     @ExceptionHandler(MinioException.class)
     public ResponseEntity<ErrorResponse> handleMinioException(MinioException exception){
         String errorMessage = exception.getMessage();

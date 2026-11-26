@@ -7,7 +7,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.fynkor.cloud_storage.dto.ResourceResponse;
 import ru.fynkor.cloud_storage.dto.UploadResponse;
+import ru.fynkor.cloud_storage.enums.ResourceType;
 import ru.fynkor.cloud_storage.services.FileService;
 import ru.fynkor.cloud_storage.services.ResourceService;
 
@@ -39,13 +41,13 @@ public class ResourceController {
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UploadResponse> getInfo(
-            @RequestParam String path
+    public ResponseEntity<ResourceResponse> getInfo(
+            @RequestParam(defaultValue = "") String path
     ){
-        UploadResponse uploadResponse = resourceService.getInfo(path);
+        ResourceResponse resourceResponse = resourceService.getInfo(path);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(uploadResponse);
+                .body(resourceResponse);
     }
 }
 
