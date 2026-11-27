@@ -16,9 +16,7 @@ public class ResourceService {
 
     private final MinioService minioService;
 
-    // TODO: path=folder1/folder2 - 500
-    //  path=folder1/images.jpg - путь некорректный - "/" -
-    //  исправить логику , если 1 слеш (getCountSlash) - мб сначала надо брать Path ,а после уже проверять на "/"
+    // TODO: доделать , посмотреть что еще по ошибкам может быть
 
     public ResourceService(MinioService minioService) {
         this.minioService = minioService;

@@ -6,21 +6,11 @@ import java.nio.file.Paths;
 public final class PathParser {
 
     public static String getPathToResource(String path){
-        if(getCountSlashInPath(path) == 1){
+        Path getPath = Paths.get(path);
+        if(getPath.getParent() == null){
             return "/";
         }
-        Path getPath = Paths.get(path);
         return normalizePathToDirectory(getPath.getParent().toString());
-    }
-
-    public static int getCountSlashInPath(String path){
-        int count = 0;
-        for(Character ch : path.toCharArray()){
-            if(ch.equals('/')){
-                count++;
-            }
-        }
-        return count;
     }
 
     public static String normalizePathToDirectory(String getPath){

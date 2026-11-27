@@ -49,7 +49,7 @@ public class FileService {
         minioService.saveFile(file, path);
 
         return new UploadResponse(
-                path,
+                path.isEmpty() ? "/" : path,
                 file.getOriginalFilename(),
                 file.getSize(),
                 ResourceType.FILE
