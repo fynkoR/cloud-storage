@@ -79,14 +79,15 @@ public final class Validator {
 
         String trimFilename = filename.trim();
 
+        if(trimFilename.isEmpty()){
+            errors.add("Filename shouldn't is empty");
+        }
         if (trimFilename.endsWith(".")) {
             errors.add("Filename shouldn't ends with <.>");
         }
-
         if (trimFilename.length() > 255) {
             errors.add("Filename should be < 255 chars");
         }
-
         Pattern pattern = Pattern.compile(TARGET_CHARS_REGEX);
         Matcher matcher = pattern.matcher(trimFilename);
         if (matcher.find()) {

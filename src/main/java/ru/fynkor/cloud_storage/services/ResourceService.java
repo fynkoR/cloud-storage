@@ -50,4 +50,19 @@ public class ResourceService {
                 ResourceType.FILE
         );
     }
+
+    public void delete(String path){
+        String errors = Validator.validatePath(path);
+        if(!errors.isEmpty()){
+            throw new PathException(errors);
+        }
+
+        String trimPath = path.trim();
+
+        if(!minioService.isResourceExists(trimPath)){
+            throw new ResourceNotFoundException(trimPath);
+        }
+
+        minioService.deleteResource(trimPath);
+    }
 }

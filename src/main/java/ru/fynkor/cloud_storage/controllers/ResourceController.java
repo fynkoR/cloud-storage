@@ -45,5 +45,16 @@ public class ResourceController {
                 .status(HttpStatus.OK)
                 .body(resourceResponse);
     }
+
+    @DeleteMapping
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> delete(
+            @RequestParam String path
+    ){
+        resourceService.delete(path);
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
 }
 

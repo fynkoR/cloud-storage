@@ -123,6 +123,18 @@ public class MinioService {
         ).size();
     }
 
+    @SneakyThrows
+    public void deleteResource(String path){
+        String userPath = getPathForUser(path);
+
+        minioClient.removeObject(RemoveObjectArgs
+                .builder()
+                .bucket(minioProperties.getBucket())
+                .object(userPath)
+                .build()
+        );
+    }
+
     private String getPathForUser(String path){
         Integer id = userService.getIdUserByAuthentication();
         return "user-" + id + "-files" + "/" + path;
