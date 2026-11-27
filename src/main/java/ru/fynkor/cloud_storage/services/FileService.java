@@ -1,18 +1,13 @@
 package ru.fynkor.cloud_storage.services;
 
-import io.minio.BucketExistsArgs;
-import io.minio.MakeBucketArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.fynkor.cloud_storage.dto.UploadResponse;
+import ru.fynkor.cloud_storage.dto.FileResponse;
+import ru.fynkor.cloud_storage.dto.ResourceResponse;
 import ru.fynkor.cloud_storage.enums.ResourceType;
 import ru.fynkor.cloud_storage.exceptions.FileYetExistsException;
 import ru.fynkor.cloud_storage.exceptions.PathException;
 import ru.fynkor.cloud_storage.exceptions.UploadException;
-import ru.fynkor.cloud_storage.props.MinioProperties;
 import ru.fynkor.cloud_storage.utils.Validator;
 
 @Service
@@ -23,7 +18,7 @@ public class FileService {
         this.minioService = minioService;
     }
 
-    public UploadResponse upload(String path, MultipartFile file) {
+    public ResourceResponse upload(String path, MultipartFile file) {
         try {
             minioService.createBucket();
         } catch (Exception e) {
@@ -42,13 +37,13 @@ public class FileService {
 
         String pathWithFilename = path + file.getOriginalFilename();
 
-        if(minioService.isFileYetExists(pathWithFilename)){
+        if(minioService.isResourceExists(pathWithFilename)){
             throw new FileYetExistsException("File yet exists: " + file.getOriginalFilename());
         }
 
         minioService.saveFile(file, path);
 
-        return new UploadResponse(
+        return new FileResponse(
                 path.isEmpty() ? "/" : path,
                 file.getOriginalFilename(),
                 file.getSize(),

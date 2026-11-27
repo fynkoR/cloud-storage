@@ -8,8 +8,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.fynkor.cloud_storage.dto.ResourceResponse;
-import ru.fynkor.cloud_storage.dto.UploadResponse;
-import ru.fynkor.cloud_storage.enums.ResourceType;
 import ru.fynkor.cloud_storage.services.FileService;
 import ru.fynkor.cloud_storage.services.ResourceService;
 
@@ -27,14 +25,14 @@ public class ResourceController {
 
     @PostMapping()
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UploadResponse> upload(
+    public ResponseEntity<ResourceResponse> upload(
             @RequestParam(defaultValue = "") String path,
             @ModelAttribute MultipartFile file
     ) {
-        UploadResponse uploadResponse = fileService.upload(path, file);
+        ResourceResponse resourceResponse = fileService.upload(path, file);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(uploadResponse);
+                .body(resourceResponse);
     }
 
     @GetMapping

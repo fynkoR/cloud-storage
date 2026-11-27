@@ -3,6 +3,7 @@ package ru.fynkor.cloud_storage.services;
 import io.minio.*;
 import org.springframework.stereotype.Service;
 import ru.fynkor.cloud_storage.dto.DirectoryResponse;
+import ru.fynkor.cloud_storage.dto.ResourceResponse;
 import ru.fynkor.cloud_storage.enums.ResourceType;
 import ru.fynkor.cloud_storage.exceptions.CreateDirectoryException;
 import ru.fynkor.cloud_storage.exceptions.FolderYetExistsException;
@@ -23,7 +24,7 @@ public class DirectoryService {
         this.minioService = minioService;
     }
 
-    public DirectoryResponse create(String path){
+    public ResourceResponse create(String path){
         try{
             minioService.createBucket();
         }catch (Exception e){
@@ -44,7 +45,7 @@ public class DirectoryService {
             throw new ParentFolderNotExistsException(pathToDirectory);
         }
 
-        if(minioService.isFolderYetExists(trimPath)){
+        if(minioService.isResourceExists(trimPath)){
             throw new FolderYetExistsException(nameDirectory);
         }
 

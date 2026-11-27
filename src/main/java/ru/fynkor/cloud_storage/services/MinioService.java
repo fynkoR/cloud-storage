@@ -59,17 +59,6 @@ public class MinioService {
         ).iterator().hasNext();
     }
 
-    public boolean isFolderYetExists(String path) {
-        String userPath = getPathForUser(path);
-
-        return minioClient.listObjects(ListObjectsArgs
-                        .builder()
-                        .bucket(minioProperties.getBucket())
-                        .prefix(userPath)
-                        .build()
-        ).iterator().hasNext();
-    }
-
     @SneakyThrows
     public void saveDirectory(String path) {
         String userPath = getPathForUser(path);
@@ -95,16 +84,6 @@ public class MinioService {
                 .object(userPathWithFileName)
                 .build()
         );
-    }
-
-    public boolean isFileYetExists(String pathWithFilename){
-        String userPath = getPathForUser(pathWithFilename);
-        return minioClient.listObjects(ListObjectsArgs
-                .builder()
-                .bucket(minioProperties.getBucket())
-                .prefix(userPath)
-                .build()
-        ).iterator().hasNext();
     }
 
     public boolean isResourceExists(String path){

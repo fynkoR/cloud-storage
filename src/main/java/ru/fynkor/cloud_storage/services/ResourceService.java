@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import ru.fynkor.cloud_storage.dto.DirectoryResponse;
 import ru.fynkor.cloud_storage.dto.FileResponse;
 import ru.fynkor.cloud_storage.dto.ResourceResponse;
-import ru.fynkor.cloud_storage.dto.UploadResponse;
 import ru.fynkor.cloud_storage.enums.ResourceType;
 import ru.fynkor.cloud_storage.exceptions.PathException;
 import ru.fynkor.cloud_storage.exceptions.ResourceNotFoundException;
@@ -15,8 +14,6 @@ import ru.fynkor.cloud_storage.utils.Validator;
 public class ResourceService {
 
     private final MinioService minioService;
-
-    // TODO: доделать , посмотреть что еще по ошибкам может быть
 
     public ResourceService(MinioService minioService) {
         this.minioService = minioService;
