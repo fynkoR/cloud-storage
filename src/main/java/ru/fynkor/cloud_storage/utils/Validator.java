@@ -1,14 +1,10 @@
 package ru.fynkor.cloud_storage.utils;
 
-import jakarta.validation.Valid;
-import ru.fynkor.cloud_storage.exceptions.PathException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public final class Validator {
 
@@ -17,8 +13,11 @@ public final class Validator {
     private Validator() {
     }
 
-    public static String validatePath(String path){
-        if(path.endsWith("/")){
+    public static String validatePath(String path) {
+        if (!path.contains("/")) {
+            return validateFilename(path);
+        }
+        if (path.endsWith("/")) {
             return validatePathToDirectory(path);
         }
 
@@ -44,13 +43,13 @@ public final class Validator {
         if (trimPath.length() >= 255) {
             errors.add("Path should be < 255 chars");
         }
-        if(trimPath.startsWith("/")){
+        if (trimPath.startsWith("/")) {
             errors.add("Path should be not start with </>");
         }
         if (!trimPath.endsWith("/")) {
             errors.add("Path should be end with </>");
         }
-        if(hasDoubleSlash(trimPath)){
+        if (hasDoubleSlash(trimPath)) {
             errors.add("In path should not be empty folder");
         }
 
@@ -75,22 +74,22 @@ public final class Validator {
         return false;
     }
 
-    public static String validateFilename(String filename){
+    public static String validateFilename(String filename) {
         List<String> errors = new ArrayList<>();
 
         String trimFilename = filename.trim();
 
-        if(trimFilename.endsWith(".")){
+        if (trimFilename.endsWith(".")) {
             errors.add("Filename shouldn't ends with <.>");
         }
 
-        if(trimFilename.length() > 255){
+        if (trimFilename.length() > 255) {
             errors.add("Filename should be < 255 chars");
         }
 
         Pattern pattern = Pattern.compile(TARGET_CHARS_REGEX);
         Matcher matcher = pattern.matcher(trimFilename);
-        if(matcher.find()){
+        if (matcher.find()) {
             errors.add("Filename shouldn't be: \\ , : , * , ? , \" , < , > , | ");
         }
 
