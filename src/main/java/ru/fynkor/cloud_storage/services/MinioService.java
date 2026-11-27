@@ -1,14 +1,21 @@
 package ru.fynkor.cloud_storage.services;
 
+import com.google.common.collect.ImmutableList;
 import io.minio.*;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.MinioException;
+import io.minio.messages.Item;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.fynkor.cloud_storage.props.MinioProperties;
+import ru.fynkor.cloud_storage.utils.PathParser;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.StreamSupport;
 
 @Service
 public class MinioService {
@@ -52,10 +59,10 @@ public class MinioService {
         }
 
         return minioClient.listObjects(ListObjectsArgs
-                        .builder()
-                        .bucket(minioProperties.getBucket())
-                        .prefix(userPathToDirectory)
-                        .build()
+                .builder()
+                .bucket(minioProperties.getBucket())
+                .prefix(userPathToDirectory)
+                .build()
         ).iterator().hasNext();
     }
 
@@ -74,7 +81,7 @@ public class MinioService {
     }
 
     @SneakyThrows
-    public void saveFile(MultipartFile file, String path){
+    public void saveFile(MultipartFile file, String path) {
         String userPath = getPathForUser(path);
         String userPathWithFileName = userPath + "/" + file.getOriginalFilename();
         minioClient.putObject(PutObjectArgs
@@ -86,11 +93,11 @@ public class MinioService {
         );
     }
 
-    public boolean isResourceExists(String path){
+    public boolean isResourceExists(String path) {
         String userPath = getPathForUser(path);
 
-        if(!path.endsWith("/")){
-            try{
+        if (!path.endsWith("/")) {
+            try {
                 minioClient.statObject(StatObjectArgs
                         .builder()
                         .bucket(minioProperties.getBucket())
@@ -98,7 +105,7 @@ public class MinioService {
                         .build()
                 );
                 return true;
-            } catch (MinioException exception){
+            } catch (MinioException exception) {
                 return false;
             }
         }
@@ -112,7 +119,7 @@ public class MinioService {
     }
 
     @SneakyThrows
-    public Long getSizeFile(String path){
+    public Long getSizeFile(String path) {
         String userPath = getPathForUser(path);
 
         return minioClient.statObject(StatObjectArgs
@@ -123,9 +130,19 @@ public class MinioService {
         ).size();
     }
 
+    // TODO: траблы с удалением , если папка создалась вместе с файлом ( маркер )
+
     @SneakyThrows
-    public void deleteResource(String path){
+    public void deleteResource(String path) {
         String userPath = getPathForUser(path);
+        String parentPath = PathParser.getPathToResource(userPath);
+
+        List<Result<Item>> listObjects = getListObjects(parentPath);
+
+        // позже убрать
+        for (Result<Item> object : listObjects) {
+            System.out.println(object.get().objectName());
+        }
 
         minioClient.removeObject(RemoveObjectArgs
                 .builder()
@@ -133,9 +150,40 @@ public class MinioService {
                 .object(userPath)
                 .build()
         );
+
+        if(listObjects.size() <= 1){
+            reuploadAllExpect(userPath, listObjects);
+        }
     }
 
-    private String getPathForUser(String path){
+    private List<Result<Item>> getListObjects(String parentPath){
+        Iterable<Result<Item>> listObjects = minioClient.listObjects(ListObjectsArgs
+                .builder()
+                .bucket(minioProperties.getBucket())
+                .prefix(parentPath)
+                .build()
+        );
+
+        return ImmutableList.copyOf(listObjects);
+    }
+
+    @SneakyThrows
+    private void reuploadAllExpect(String userPath, List<Result<Item>> listObjects){
+        for(Result<Item> resultItem : listObjects){
+            String objectName = resultItem.get().objectName();
+            if(!Objects.equals(objectName, userPath)){
+                minioClient.uploadObject(UploadObjectArgs
+                        .builder()
+                        .bucket(minioProperties.getBucket())
+                        .object(objectName)
+                        .build()
+                );
+            }
+        }
+    }
+
+
+    private String getPathForUser(String path) {
         Integer id = userService.getIdUserByAuthentication();
         return "user-" + id + "-files" + "/" + path;
     }
