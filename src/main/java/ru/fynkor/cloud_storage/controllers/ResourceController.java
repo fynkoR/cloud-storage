@@ -25,8 +25,6 @@ public class ResourceController {
         this.resourceService = resourceService;
     }
 
-    // TODO: решить на счет папок , проверка на символы и т.д.
-
     @PostMapping()
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UploadResponse> upload(

@@ -1,6 +1,8 @@
 package ru.fynkor.cloud_storage.services;
 
 import io.minio.*;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.MinioException;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -107,6 +109,20 @@ public class MinioService {
 
     public boolean isResourceExists(String path){
         String userPath = getPathForUser(path);
+
+        if(!path.endsWith("/")){
+            try{
+                minioClient.statObject(StatObjectArgs
+                        .builder()
+                        .bucket(minioProperties.getBucket())
+                        .object(userPath)
+                        .build()
+                );
+                return true;
+            } catch (MinioException exception){
+                return false;
+            }
+        }
 
         return minioClient.listObjects(ListObjectsArgs
                 .builder()
