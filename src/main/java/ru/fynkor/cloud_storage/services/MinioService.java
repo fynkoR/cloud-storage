@@ -160,6 +160,18 @@ public class MinioService {
         return ImmutableList.copyOf(listObjects);
     }
 
+    @SneakyThrows
+    public InputStream downloadResource(String path){
+        String userPath = getPathForUser(path);
+
+        return minioClient.getObject(GetObjectArgs
+                .builder()
+                .bucket(minioProperties.getBucket())
+                .object(userPath)
+                .build()
+        );
+    }
+
     private String getPathForUser(String path) {
         Integer id = userService.getIdUserByAuthentication();
         return "user-" + id + "-files" + "/" + path;
