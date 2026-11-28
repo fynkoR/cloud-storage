@@ -130,19 +130,12 @@ public class MinioService {
         ).size();
     }
 
-    // TODO: траблы с удалением , если папка создалась вместе с файлом ( маркер )
-
     @SneakyThrows
     public void deleteResource(String path) {
         String userPath = getPathForUser(path);
-        String parentPath = PathParser.getPathToResource(userPath);
+        String parentPath = PathParser.getPathToResource(path);
 
         List<Result<Item>> listObjects = getListObjects(parentPath);
-
-        // позже убрать
-        for (Result<Item> object : listObjects) {
-            System.out.println(object.get().objectName());
-        }
 
         minioClient.removeObject(RemoveObjectArgs
                 .builder()
@@ -152,7 +145,7 @@ public class MinioService {
         );
 
         if(listObjects.size() <= 1){
-            reuploadAllExpect(userPath, listObjects);
+            saveDirectory(parentPath);
         }
     }
 
@@ -166,22 +159,6 @@ public class MinioService {
 
         return ImmutableList.copyOf(listObjects);
     }
-
-    @SneakyThrows
-    private void reuploadAllExpect(String userPath, List<Result<Item>> listObjects){
-        for(Result<Item> resultItem : listObjects){
-            String objectName = resultItem.get().objectName();
-            if(!Objects.equals(objectName, userPath)){
-                minioClient.uploadObject(UploadObjectArgs
-                        .builder()
-                        .bucket(minioProperties.getBucket())
-                        .object(objectName)
-                        .build()
-                );
-            }
-        }
-    }
-
 
     private String getPathForUser(String path) {
         Integer id = userService.getIdUserByAuthentication();
